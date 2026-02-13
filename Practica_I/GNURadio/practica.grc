@@ -68,28 +68,25 @@ blocks:
 - name: epy_block_0
   id: epy_block
   parameters:
-    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk (gr. sync_block\
-      \ ):\n\n    def __init__ ( self ) : # only default arguments here\n        gr.\
-      \ sync_block . __init__ (\n            self ,\n            name =\u2019e_Acum\
-      \ \u2019, # will show up in GRC\n            in_sig =[ np. float32 ],\n    \
-      \        out_sig =[ np. float32 ]\n        )\n        \n    def work (self ,\
-      \ input_items , output_items ):\n        x = input_items [0] # Senial de entrada\
-      \ .\n        y0 = output_items [0] # Senial acumulada\n        \n        y0\
-      \ [:] = np. cumsum (x)\n        \n        return len (y)\n"
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\n\
+      \n    def __init__( self ): # only default arguments here\n        gr.sync_block.__init__(\n\
+      \            self,\n            name =\"e_Acum\", # will show up in GRC\n  \
+      \          in_sig=[np.float32],\n            out_sig=[np.float32]\n        )\n\
+      \        \n    def work (self , input_items, output_items):\n        x = input_items\
+      \ [0] # Senial de entrada .\n        y0 = output_items [0] # Senial acumulada\n\
+      \        \n        y0[:] = np.cumsum(x)\n        \n        return len(y)\n"
     affinity: ''
-    alias: Acumulador
-    comment: ''
-    example_param: '1.0'
+    alias: ''
+    comment: Acumulador
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
-    _io_cache: ('Embedded Python Block', 'blk', [('example_param', '1.0')], [('0',
-      'complex', 1)], [('0', 'complex', 1)], 'Embedded Python Block example - a simple
-      multiply const', ['example_param'])
+    _io_cache: ('e_Acum', 'blk', [], [('0', 'float', 1)], [('0', 'float', 1)], '',
+      [])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 184.0]
+    coordinate: [152, 176.0]
     rotation: 0
     state: enabled
 - name: epy_block_1
@@ -97,17 +94,17 @@ blocks:
   parameters:
     _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk (gr. sync_block\
       \ ):\n\n    def __init__ ( self ) : # only default arguments here\n        gr.\
-      \ sync_block . __init__ (\n            self ,\n            name =\u2019e_Diff\
-      \ \u2019, # will show up in GRC\n            in_sig =[ np. float32 ],\n    \
-      \        out_sig =[ np. float32 ]\n        \n        self . acum_anterior =\
-      \ 0\n        )\n        \n    def work (self , input_items , output_items ):\n\
-      \        x = input_items [0] # Senial de entrada .\n        y0 = output_items\
-      \ [0] # Senial acumulada diferencial\n\n        N = len (x)\n        diff =\
-      \ np. cumsum (x) - self . acum_anterior\n        self . acum_anterior = diff\
-      \ [N -1]\n        y0 [:] = diff\n        return len (y)\n"
+      \ sync_block . __init__ (\n            self ,\n            name ='e_Diff', #\
+      \ will show up in GRC\n            in_sig =[ np. float32 ],\n            out_sig\
+      \ =[ np. float32 ]\n        \n        self . acum_anterior = 0\n        )\n\
+      \        \n    def work (self , input_items , output_items ):\n        x = input_items\
+      \ [0] # Senial de entrada .\n        y0 = output_items [0] # Senial acumulada\
+      \ diferencial\n\n        N = len (x)\n        diff = np. cumsum (x) - self .\
+      \ acum_anterior\n        self . acum_anterior = diff [N -1]\n        y0 [:]\
+      \ = diff\n        return len (y)\n"
     affinity: ''
-    alias: diferenciador
-    comment: ''
+    alias: ''
+    comment: DIferenciador
     example_param: '1.0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -118,7 +115,50 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 376.0]
+    coordinate: [152, 368.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk (gr. sync_block\
+      \ ):\n\n    def __init__ ( self ) : # only default arguments here\n        gr.\
+      \ sync_block . __init__ (\n            self ,\n            name =\u2019 Promedios_de_tiempos\
+      \ \u2019, # will show up in GRC\n            in_sig =[ np. float32 ],\n    \
+      \        out_sig =[ np. float32 ,np. float32 ,np. float32 ,np. float32 ,np.\
+      \ float32 ]\n        )   \n        self . acum_anterior = 0\n        self .\
+      \ Ntotales = 0\n        self . acum_anterior1 = 0\n        self . acum_anterior2\
+      \ = 0\n\n    def work (self , input_items , output_items ):\n        x = input_items\
+      \ [0] # Senial de entrada .\n        y0 = output_items [0] # Promedio de la\
+      \ senial\n        y1 = output_items [1] # Media de la senial\n        y2 = output_items\
+      \ [2] # RMS de la senial\n        y3 = output_items [3] # Potencia promedio\
+      \ de la senial\n        y4 = output_items [4] # Desviacion estandar de la senial\n\
+      \n        # Calculo del promedio\n        N = len (x)\n        self . Ntotales\
+      \ = self . Ntotales + N\n        acumulado = self . acum_anterior + np. cumsum\
+      \ (x)\n        self . acum_anterior = acumulado [N -1]\n        y0 [:]= acumulado\
+      \ / self . Ntotales\n\n        # Calculo de la media cuadratica\n        x2=np.\
+      \ multiply (x,x)\n        acumulado1 = self . acum_anterior1 + np. cumsum (x2)\n\
+      \        self . acum_anterior1 = acumulado [N -1]\n        y1 [:] = acumulado1\
+      \ / self . Ntotales\n\n        # Calculo de la RMS\n        y2 [:] = np. sqrt\
+      \ (y1)\n\n        # Calculo de la potencia promedio\n        y3 [:] = np. multiply\
+      \ (y2 ,y2)\n\n        # Calculo de la desviacion estandar\n        x3 = np.\
+      \ multiply (x-y0 ,x-y0)\n        acumulado2 = self . acum_anterior2 + np. cumsum\
+      \ (x3)\n        self . acum_anterior2 = acumulado2 [N -1]\n        y4 [:] =\
+      \ np. sqrt ( acumulado2 / self . Ntotales )\n\n        return len (x)\n"
+    affinity: ''
+    alias: ''
+    comment: Promedio de tiempo
+    example_param: '1.0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Embedded Python Block', 'blk', [('example_param', '1.0')], [('0',
+      'complex', 1)], [('0', 'complex', 1)], 'Embedded Python Block example - a simple
+      multiply const', ['example_param'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 264.0]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0
@@ -150,7 +190,12 @@ blocks:
     coordinate: [512, 232.0]
     rotation: 0
     state: enabled
-connections: []
+
+connections:
+- [blocks_vector_source_x_0, '0', epy_block_1, '0']
+- [blocks_vector_source_x_0, '0', epy_block_2, '0']
+- [epy_block_1, '0', qtgui_sink_x_0, '0']
+- [epy_block_2, '0', qtgui_sink_x_0, '0']
 
 metadata:
   file_format: 1
