@@ -73,7 +73,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
+    value: np.array([0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1])
   states:
     bus_sink: false
     bus_source: false
@@ -133,7 +133,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: -1./2.
+    const: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: float
@@ -141,7 +141,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [274, 127]
+    coordinate: [248, 120.0]
     rotation: 0
     state: enabled
 - name: analog_noise_source_x_0
@@ -215,7 +215,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [232, 192.0]
+    coordinate: [360, 224.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_mag_squared_0
@@ -253,7 +253,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 232.0]
+    coordinate: [8, 240.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -271,7 +271,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [479, 143]
+    coordinate: [512, 160.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_1
@@ -343,9 +343,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [851, 175]
+    coordinate: [896, 112.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: blocks_unpack_k_bits_bb_0
   id: blocks_unpack_k_bits_bb
   parameters:
@@ -359,7 +359,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [176, 264.0]
+    coordinate: [256, 288.0]
     rotation: 0
     state: enabled
 - name: epy_block_0
@@ -717,7 +717,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [312.0, 280]
+    coordinate: [456.0, 328]
     rotation: 270
     state: true
 - name: virtual_sink_0_1_0
