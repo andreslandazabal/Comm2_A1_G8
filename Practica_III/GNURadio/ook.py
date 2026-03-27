@@ -14,7 +14,7 @@ from gnuradio import qtgui
 from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import blocks
-import numpy
+import pmt
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -25,6 +25,8 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio import uhd
+import time
 import math
 import numpy as np
 import ook_epy_block_0 as epy_block_0  # embedded python block
@@ -72,9 +74,10 @@ class ook(gr.top_block, Qt.QWidget):
         ##################################################
         self.Sps = Sps = 128
         self.Rb = Rb = 32000
-        self.samp_rate = samp_rate = Rb*Sps
+        self.samp_rate = samp_rate = 12.5e6
         self.h = h = [1]*Sps
         self.fd = fd = Rb
+        self.fc_RF = fc_RF = 540e6
         self.fc = fc = Rb*4
 
         ##################################################
@@ -114,6 +117,22 @@ class ook(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
+        self.uhd_usrp_sink_0 = uhd.usrp_sink(
+            ",".join(("", '')),
+            uhd.stream_args(
+                cpu_format="fc32",
+                args='',
+                channels=list(range(0,1)),
+            ),
+            "",
+        )
+        self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
+        # No synchronization enforced.
+
+        self.uhd_usrp_sink_0.set_center_freq(fc_RF, 0)
+        self.uhd_usrp_sink_0.set_antenna("TX/RX", 0)
+        self.uhd_usrp_sink_0.set_bandwidth((samp_rate/2), 0)
+        self.uhd_usrp_sink_0.set_gain(30, 0)
         self.qtgui_time_sink_x_0_1_0_0 = qtgui.time_sink_c(
             (16*Sps), #size
             samp_rate, #samp_rate
@@ -474,10 +493,10 @@ class ook(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.epy_block_0_0 = epy_block_0_0.blk()
         self.epy_block_0 = epy_block_0.blk(fc=fc, samp_rate=samp_rate)
-        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff(2)
+        self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(16)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_char*1, '/home/com_2_A1_G8/comm2/Comm2_A1_G8/Practica_III/GNURadio/sonido.wav', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
         self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
-        self.blocks_add_const_vxx_0 = blocks.add_const_ff((-0.5))
-        self.analog_random_source_x_0 = blocks.vector_source_b(list(map(int, numpy.random.randint(0, 2, 1000000))), True)
         self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
 
 
@@ -486,16 +505,16 @@ class ook(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_const_source_x_0, 0), (self.epy_block_0, 1))
         self.connect((self.analog_const_source_x_0, 0), (self.epy_block_0_0, 1))
-        self.connect((self.analog_random_source_x_0, 0), (self.blocks_char_to_float_0, 0))
-        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
-        self.connect((self.blocks_char_to_float_0, 0), (self.blocks_add_const_vxx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.interp_fir_filter_xxx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.qtgui_time_sink_x_0_0, 0))
+        self.connect((self.blocks_char_to_float_0, 0), (self.interp_fir_filter_xxx_0, 0))
+        self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_0_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.blocks_char_to_float_0, 0))
         self.connect((self.epy_block_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.epy_block_0, 0), (self.qtgui_time_sink_x_0_1_0, 1))
         self.connect((self.epy_block_0_0, 0), (self.qtgui_const_sink_x_0, 0))
         self.connect((self.epy_block_0_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
         self.connect((self.epy_block_0_0, 0), (self.qtgui_time_sink_x_0_1_0_0, 0))
+        self.connect((self.epy_block_0_0, 0), (self.uhd_usrp_sink_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.epy_block_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.epy_block_0_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.qtgui_time_sink_x_0_1, 0))
@@ -516,7 +535,6 @@ class ook(gr.top_block, Qt.QWidget):
     def set_Sps(self, Sps):
         self.Sps = Sps
         self.set_h([1]*self.Sps)
-        self.set_samp_rate(self.Rb*self.Sps)
 
     def get_Rb(self):
         return self.Rb
@@ -525,7 +543,6 @@ class ook(gr.top_block, Qt.QWidget):
         self.Rb = Rb
         self.set_fc(self.Rb*4)
         self.set_fd(self.Rb)
-        self.set_samp_rate(self.Rb*self.Sps)
         self.qtgui_time_sink_x_0_0.set_samp_rate(self.Rb)
 
     def get_samp_rate(self):
@@ -539,6 +556,8 @@ class ook(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0_1.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_0_1_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_0_1_0_0.set_samp_rate(self.samp_rate)
+        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
+        self.uhd_usrp_sink_0.set_bandwidth((self.samp_rate/2), 0)
 
     def get_h(self):
         return self.h
@@ -552,6 +571,13 @@ class ook(gr.top_block, Qt.QWidget):
 
     def set_fd(self, fd):
         self.fd = fd
+
+    def get_fc_RF(self):
+        return self.fc_RF
+
+    def set_fc_RF(self, fc_RF):
+        self.fc_RF = fc_RF
+        self.uhd_usrp_sink_0.set_center_freq(self.fc_RF, 0)
 
     def get_fc(self):
         return self.fc
